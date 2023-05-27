@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "593954993464",
+    "project_id": "patchbuddy-f9d38",
+    "storage_bucket": "patchbuddy-f9d38.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:593954993464:android:bb0d0c370f1a2a7497bdcd",
+        "android_client_info": {
+          "package_name": "com.patchbuddy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "593954993464-7b9sujkcs0s0qtbjhut3qtvngagj9snh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG4G_wL5Jhzs1TyY6h65MhsNXR4PxI6UQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "593954993464-7b9sujkcs0s0qtbjhut3qtvngagj9snh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

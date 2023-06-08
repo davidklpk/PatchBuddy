@@ -10,10 +10,10 @@ function App(): JSX.Element {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Looking for Patches">
-          <Stack.Screen options={{ headerShown:true }} name="Looking for Patches" component={Start} />
-          <Stack.Screen options={{ headerShown:true }} name="Scan your Patch" component={ScanTag} />
-          <Stack.Screen options={{ headerShown:true }} name="Add Description" component={AddDescription} />
+      <Stack.Navigator initialRouteName="Start">
+          <Stack.Screen options={{ headerShown:false }} name="Start" component={Start} />
+          <Stack.Screen options={{ headerShown:false }} name="Rewrite" component={ScanTag} />
+          <Stack.Screen options={{ headerShown:false }} name="Describe" component={AddDescription} />
       </Stack.Navigator>
     </NavigationContainer>
   );

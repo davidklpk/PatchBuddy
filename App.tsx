@@ -4,16 +4,18 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Start from './src/components/pages/Start';
 import ScanTag from './src/components/pages/register/ScanTag';
 import AddDescription from './src/components/pages/register/AddDescription';
+import Setup from './src/components/pages/Setup';
 
 function App(): JSX.Element {
   const Stack = createNativeStackNavigator();
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Looking for Patches">
-          <Stack.Screen options={{ headerShown:true }} name="Looking for Patches" component={Start} />
-          <Stack.Screen options={{ headerShown:true }} name="Scan your Patch" component={ScanTag} />
-          <Stack.Screen options={{ headerShown:true }} name="Add Description" component={AddDescription} />
+      <Stack.Navigator initialRouteName="Setup">
+          <Stack.Screen options={{ headerShown:false }} name="Setup" component={Setup} />
+          <Stack.Screen options={{ headerShown:false }} name="Start" component={Start} />
+          <Stack.Screen options={{ headerShown:false }} name="Rewrite" component={ScanTag} />
+          <Stack.Screen options={{ headerShown:false }} name="Describe" component={AddDescription} />
       </Stack.Navigator>
     </NavigationContainer>
   );

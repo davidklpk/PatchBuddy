@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button, Text, TextInput } from 'react-native-paper';
+import { Appbar, Button, Card, FAB, Text, TextInput } from 'react-native-paper';
 import Tts from 'react-native-tts';
 import RNFetchBlob from 'rn-fetch-blob';
-import { Platform } from 'react-native';
+import { Platform, ScrollView, View } from 'react-native';
 import { ref, set } from 'firebase/database';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import { db } from '../../../../firebase-config';
@@ -14,6 +14,13 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
   const [text, setText] = React.useState("");
   const [hasAudio, setHasAudio] = React.useState(false);
   const audioRecorderPlayer = new AudioRecorderPlayer();
+  
+  const TTS_DESCRIPTION = "Provide a description for your patch. You can also record an audio description by pressing the microphone button. Release the button to stop recording.";
+  const _goBack = () => navigation.navigate('Rewrite');
+
+  const speakDialog = (dialog : string) => {
+    Tts.speak(dialog);
+}
 
   const dirs = RNFetchBlob.fs.dirs;   // Gets the directory-paths of the system
   const path = Platform.select({      // Selects the directory, in which the files are saved
@@ -63,7 +70,7 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
   */
   const addPatchToDB = async () => {
     try {
-      set(ref(db, REACT_APP_FIREBASE_TAG_REF +'/'+id), {
+      set(ref(db, REACT_APP_FIREBASE_TAG_REF+id), {
         id: id,
         hasAudio : hasAudio,
         path: path,
@@ -83,18 +90,41 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
   // TODO: UI Design
   return (
     <>
-      <Text variant="headlineSmall">Step 2 of 2</Text>
-      <Text variant='headlineLarge'>Give it a description</Text> 
-      <Text variant='headlineSmall'>Description via Text</Text> 
-      <TextInput
-          label="Your description"
-          value={text}
-          onChangeText={text => setText(text)}
-      />
-      <Text variant='headlineSmall'>Description via Voice</Text> 
-      <Button mode="contained" onPressIn={() => onStartRecord()} onPressOut={() => onStopRecord()}>Start Recording</Button>
-      <Button mode="contained" onPress={() => onStartPlay()}>Play Recording</Button>
-      <Button mode="contained" onPress={() => addPatchToDB()}>Save</Button>
+      <Appbar.Header elevated={true}>
+        <Appbar.BackAction onPress={_goBack} />
+        <Appbar.Content title="Add description" />
+      </Appbar.Header>
+      <ScrollView 
+          contentContainerStyle={{flexGrow: 1, justifyContent: 'center', marginBottom: 48}}
+          contentInsetAdjustmentBehavior="automatic">
+        <View style={{padding:16}}>
+          <Card style={{marginBottom:32}}>
+            <Card.Content>
+              <Text variant="titleLarge" style={{paddingBottom: 8}}>Provide a description</Text>
+              <Text variant="bodyLarge">{TTS_DESCRIPTION}</Text>
+            </Card.Content>
+            <Card.Actions style={{marginTop: 8}}>
+              <Button mode='text' icon="text-to-speech" onPress={() => speakDialog(TTS_DESCRIPTION)}>Read out loud</Button>
+            </Card.Actions>
+          </Card>
+
+          <Text variant='titleLarge' style={{marginBottom:8}}>Description via Text</Text> 
+          <TextInput
+              label="Your textual description"
+              mode="outlined"
+              value={text}
+              onChangeText={text => setText(text)}
+          />
+
+          <Text variant='titleLarge' style={{marginTop:32, marginBottom:8}}>Description via Voice</Text> 
+          <View style={{flexDirection: "row", flex: 1}}>
+            <Button style={{flex: 1, marginRight: 8, }} icon="record" mode="contained" onPressIn={() => onStartRecord()} onPressOut={() => onStopRecord()}>Record</Button>
+            <Button style={{flex: 1, marginRight: 8, }} icon="play" mode="contained" onPress={() => onStartPlay()}>Play</Button>
+            <Button style={{flex: 1 }} icon="content-save" mode="contained" onPress={() => addPatchToDB()}>Save</Button>
+          </View>
+
+        </View>
+      </ScrollView>
     </>
   )
 }

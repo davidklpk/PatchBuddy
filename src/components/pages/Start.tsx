@@ -15,6 +15,7 @@ function Start({navigation}: {navigation: any}): JSX.Element {
 
   useFocusEffect(
     React.useCallback(() => {
+
       // If it is focused, search for NFC-Tags
       NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag: any) => {
         searchTag(tag.id)

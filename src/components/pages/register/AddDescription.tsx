@@ -8,6 +8,8 @@ import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import { db } from '../../../../firebase-config';
 import { StackActions, useFocusEffect } from '@react-navigation/native';
 import { REACT_APP_FIREBASE_TAG_REF } from "@env";
+import { assistantSpeak } from '../../../global/ttsTools';
+import { GLOBAL } from '../../../global/global';
 
 function AddDescription({ route, navigation }: { route : any, navigation: any }) : JSX.Element {
   const { id } = route.params;
@@ -15,12 +17,8 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
   const [hasAudio, setHasAudio] = React.useState(false);
   const audioRecorderPlayer = new AudioRecorderPlayer();
   
-  const TTS_DESCRIPTION = "Provide a description for your patch. You can also record an audio description by pressing the microphone button. Release the button to stop recording.";
+  const TTS_INSTRUCTION = "Provide a description for your patch. You can also record an audio description by pressing the microphone button. Release the button to stop recording.";
   const _goBack = () => navigation.navigate('Rewrite');
-
-  const speakDialog = (dialog : string) => {
-    Tts.speak(dialog);
-}
 
   const dirs = RNFetchBlob.fs.dirs;   // Gets the directory-paths of the system
   const path = Platform.select({      // Selects the directory, in which the files are saved
@@ -30,6 +28,7 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
 
   useFocusEffect(
     React.useCallback(() => {
+      assistantSpeak(GLOBAL.isTtsActivated, TTS_INSTRUCTION);
       return () => {
         // cleanup functions: if unfocused remove all eventListeners etc.
         Tts.removeAllListeners("tts-finish");
@@ -78,8 +77,10 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
       });
   
       Tts.removeAllListeners("tts-finish");
+      Tts.stop();
       Tts.speak("Your patch is now registered.")
-      navigation.dispatch(StackActions.popToTop());
+      //navigation.dispatch(StackActions.popToTop());
+      navigation.reset({index:0, routes:[{name: 'Start'}]})
   
     } catch(e) {
       // TODO Exception Handling
@@ -101,10 +102,10 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
           <Card style={{marginBottom:32}}>
             <Card.Content>
               <Text variant="titleLarge" style={{paddingBottom: 8}}>Provide a description</Text>
-              <Text variant="bodyLarge">{TTS_DESCRIPTION}</Text>
+              <Text variant="bodyLarge">{TTS_INSTRUCTION}</Text>
             </Card.Content>
             <Card.Actions style={{marginTop: 8}}>
-              <Button mode='text' icon="text-to-speech" onPress={() => speakDialog(TTS_DESCRIPTION)}>Read out loud</Button>
+              <Button mode='text' icon="text-to-speech" onPress={() => Tts.speak(TTS_INSTRUCTION)}>Read out loud</Button>
             </Card.Actions>
           </Card>
 

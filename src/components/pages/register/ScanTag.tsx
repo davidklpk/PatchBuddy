@@ -4,6 +4,8 @@ import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import Tts from 'react-native-tts';
 import { useFocusEffect } from '@react-navigation/native';
 import { ScrollView, View } from 'react-native';
+import { assistantSpeak } from '../../../global/ttsTools';
+import { GLOBAL } from '../../../global/global';
 
 function ScanTag({ navigation }: { navigation: any }) : JSX.Element {
 
@@ -11,11 +13,16 @@ function ScanTag({ navigation }: { navigation: any }) : JSX.Element {
 
   const _goBack = () => navigation.navigate('Start');
 
-  const TTS_DESCRIPTION = "To rewrite your patch, simply hold your device near the patch. If successful, you can edit your patch."
+  const TTS_INSTRUCTION = "To rewrite your patch, simply hold your device near the patch. If successful, you can edit your patch."
+  const TTS_SUCCESS_SCAN = "Patch successfully scanned. Provide a description."
 
   useFocusEffect(
     React.useCallback(() => {
       readNdef();
+      assistantSpeak(GLOBAL.isTtsActivated, TTS_INSTRUCTION)
+      return () => {
+        Tts.removeAllListeners("tts-finish");
+      };
     }, [])
   );
 
@@ -29,7 +36,8 @@ function ScanTag({ navigation }: { navigation: any }) : JSX.Element {
       const tag = await NfcManager.getTag();
       console.info('Found a tag with the id #', tag?.id);
       setNFCId(tag?.id)
-      Tts.speak("Patch successfully scanned. Provide a description.");
+      Tts.speak(TTS_SUCCESS_SCAN);
+      Tts.stop();
       navigation.navigate('Describe', { id: tag?.id});
       
     } catch (ex) {
@@ -38,10 +46,6 @@ function ScanTag({ navigation }: { navigation: any }) : JSX.Element {
       // Removes listener
       NfcManager.cancelTechnologyRequest();
     }
-  }
-
-  const speakDialog = (dialog : string) => {
-    Tts.speak(dialog);
   }
 
   return (
@@ -57,10 +61,10 @@ function ScanTag({ navigation }: { navigation: any }) : JSX.Element {
               <Card>
                 <Card.Content>
                   <Text variant="titleLarge" style={{paddingBottom: 8}}>Scan your patch</Text>
-                  <Text variant="bodyLarge">{TTS_DESCRIPTION}</Text>
+                  <Text variant="bodyLarge">{TTS_INSTRUCTION}</Text>
                 </Card.Content>
                 <Card.Actions style={{marginTop: 8}}>
-                  <Button mode='text' icon="text-to-speech" onPress={() => speakDialog(TTS_DESCRIPTION)}>Read out loud</Button>
+                  <Button mode='text' icon="text-to-speech" onPress={() => Tts.speak(TTS_INSTRUCTION)}>Read out loud</Button>
                 </Card.Actions>
               </Card>
             </View>

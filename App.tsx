@@ -6,7 +6,16 @@ import ScanTag from './src/components/pages/register/ScanTag';
 import AddDescription from './src/components/pages/register/AddDescription';
 import Setup from './src/components/pages/Setup';
 
+// export type RootStackParamList = {
+//   Setup: undefined;
+//   Start: {tts: boolean};
+//   Rewrite : undefined;
+//   Describe : undefined;
+// };
+
 function App(): JSX.Element {
+
+  // const Stack = createNativeStackNavigator<RootStackParamList>();
   const Stack = createNativeStackNavigator();
 
   return (
@@ -21,4 +30,5 @@ function App(): JSX.Element {
   );
 }
 
-export default App;
+export default App; 
+

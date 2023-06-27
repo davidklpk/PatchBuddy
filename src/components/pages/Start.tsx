@@ -7,15 +7,19 @@ import Tts from 'react-native-tts';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import { useFocusEffect } from '@react-navigation/native';
 import { REACT_APP_FIREBASE_DB_URL, REACT_APP_FIREBASE_TAG_REF } from "@env";
+import {GLOBAL} from "./../../global/global"
+import { assistantSpeak, navigateToScreen } from '../../global/ttsTools';
 
 function Start({navigation}: {navigation: any}): JSX.Element {
   const [hasNfc, setHasNFC] = useState(false);
-  const audioRecorderPlayer = new AudioRecorderPlayer();   
-  const TTS_DESCRIPTION = "Simply hold your device near your patch. PatchBuddy will handle the rest, promise."
+  const audioRecorderPlayer = new AudioRecorderPlayer(); 
+
+  const TTS_INSTRUCTION = "Simply hold your device near your patch. PatchBuddy will handle the rest, promise.";
+  const TTS_NONFC = "Your NFC seems to be turned of. Please turn it on, in order to use PatchBuddy.";
+  const TTS_TAGUNKNOWN = "The tag is unknown. You can register it right now.";
 
   useFocusEffect(
-    React.useCallback(() => {
-
+    React.useCallback(() => {  
       // If it is focused, search for NFC-Tags
       NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag: any) => {
         searchTag(tag.id)
@@ -42,8 +46,9 @@ function Start({navigation}: {navigation: any}): JSX.Element {
         setHasNFC(true);
         await NfcManager.start()
         readTag();
+        assistantSpeak(GLOBAL.isTtsActivated, TTS_INSTRUCTION)
       } else {
-        Tts.speak("Your NFC seems to be turned of. Please turn it on, in order to use PatchBuddy.");
+        assistantSpeak(GLOBAL.isTtsActivated, TTS_NONFC)
       }
     }
     checkIsSupported()
@@ -66,7 +71,7 @@ function Start({navigation}: {navigation: any}): JSX.Element {
         if(snapshot.exists()) {
           speakResult(snapshot.child("hasAudio").val(), snapshot.child("description").val(), snapshot.child("path").val());
         } else {
-          Tts.speak("The tag is unknown. You can register it right now.");
+          Tts.speak(TTS_TAGUNKNOWN);
           navigation.navigate('Rewrite');
         }
       });
@@ -100,11 +105,12 @@ function Start({navigation}: {navigation: any}): JSX.Element {
     }
   }
 
-  const speakDialog = (dialog : string) => {
-      Tts.speak(dialog);
-  }
+  // const navigateToScreen= (screenName : string) => {
+  //   Tts.stop();
+  //   navigation.replace(screenName);
+  // }
 
-  // If NFC activated
+  // If NFC is activated
   if(hasNfc) {
     return (
       <>
@@ -118,33 +124,19 @@ function Start({navigation}: {navigation: any}): JSX.Element {
               <Card>
                 <Card.Content>
                   <Text variant="titleLarge" style={{paddingBottom: 8}}>Scan your patch</Text>
-                  <Text variant="bodyLarge">{TTS_DESCRIPTION}</Text>
+                  <Text variant="bodyLarge">{TTS_INSTRUCTION}</Text>
                 </Card.Content>
                 <Card.Actions style={{marginTop: 8}}>
-                  <Button mode='text' icon="text-to-speech" onPress={() => speakDialog(TTS_DESCRIPTION)}>Read out loud</Button>
+                  <Button mode='text' icon="text-to-speech" onPress={() => Tts.speak(TTS_INSTRUCTION)}>Read out loud</Button>
                 </Card.Actions>
               </Card>
-              <Button mode='contained' style={{marginTop: 32}} icon="content-save-edit" onPress={() => navigation.navigate('Rewrite')}>Rewrite existing tag</Button>
+              <Button mode='contained' style={{marginTop: 32}} icon="content-save-edit" onPress={() => navigateToScreen("Rewrite", navigation)}>Rewrite existing tag</Button>
             </View>
-
-            {/**
-            <Card>
-              <Card.Content>
-                <Text variant="titleLarge">Register your tag</Text>
-                <Text variant="bodyMedium">Are you using a PatchBuddy tag for the first time? Than you have to register it right here.</Text>
-              </Card.Content>
-              <Card.Actions>
-                <Button mode="contained" onPress={() => navigation.navigate('Rewrite')}>
-                  Register Tag
-                </Button>
-                <Button mode='contained'>Read out loud</Button>
-              </Card.Actions>
-            </Card> 
-            **/}
         </ScrollView>
         </>
     )
-    // If NFC is deactivated not 
+
+    // If NFC is deactivated
   } else {
     return (
       <SafeAreaView>
@@ -153,7 +145,7 @@ function Start({navigation}: {navigation: any}): JSX.Element {
           <View>
             <Text variant="headlineSmall">No NFC or its turned off</Text>
             <Text variant='headlineLarge'>There is no point in using PatchBuddy without NFC</Text> 
-            <Button mode="contained" onPress={() => navigation.navigate('Start')}>Try Again</Button>
+            <Button mode="contained" onPress={() => navigateToScreen("Start", navigation)}>Try Again</Button>
           </View>
         </ScrollView>
       </SafeAreaView> 

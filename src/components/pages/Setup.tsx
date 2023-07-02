@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Appbar, Text, Button, TouchableRipple } from 'react-native-paper';
+import { Appbar, Text, TouchableRipple } from 'react-native-paper';
 import Tts from 'react-native-tts';
 import { useFocusEffect } from '@react-navigation/native';
 import { ScrollView, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import {GLOBAL} from "./../../global/global"
+import { navigateToScreen } from '../../global/ttsTools';
 
 function Setup({ navigation }: { navigation: any }) : JSX.Element {
   const { colors } = useTheme();
@@ -31,19 +33,16 @@ function Setup({ navigation }: { navigation: any }) : JSX.Element {
 
   const toggleTTS = (ttsActive : boolean) => {
     setTTS(ttsActive);
-    navigateToStart();
+    navigateToScreen("Start", navigation);
 
     if(ttsActive) {
+      GLOBAL.isTtsActivated = true;
       speakDialog(TTS_ACCESSIBILITY_TRUE);
       
     } else {
+      GLOBAL.isTtsActivated = false;
       speakDialog(TTS_ACCESSIBILITY_FALSE);
     }
-  }
-
-  const navigateToStart = () => {
-    Tts.stop();
-    navigation.replace("Start");
   }
 
   return (
@@ -66,13 +65,13 @@ function Setup({ navigation }: { navigation: any }) : JSX.Element {
                 padding: 16,
                 height: '100%',
                 width: '100%',
-                backgroundColor: colors.primary,
+                backgroundColor: colors.primaryContainer,
                 flex: 1,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
               rippleColor="rgba(255, 255, 255, .18)">
-              <Text style={{fontSize: 28, color: colors.onPrimary, textAlign: "center"}}>Activate Text-To-Speech</Text>
+              <Text style={{fontSize: 28, color: colors.onPrimaryContainer, textAlign: "center"}}>Activate Text-To-Speech</Text>
             </TouchableRipple>
           </View>
 
@@ -83,13 +82,13 @@ function Setup({ navigation }: { navigation: any }) : JSX.Element {
                 padding: 16,
                 height: '100%',
                 width: '100%',
-                backgroundColor: colors.primary,
+                backgroundColor: colors.primaryContainer,
                 flex: 1,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
               rippleColor="rgba(255, 255, 255, .18)">
-              <Text style={{fontSize: 28, color: colors.onPrimary, textAlign: "center"}}>Deactivate Text-To-Speech</Text>
+              <Text style={{fontSize: 28, color: colors.onPrimaryContainer, textAlign: "center"}}>Deactivate Text-To-Speech</Text>
             </TouchableRipple>
           </View>
         </View>

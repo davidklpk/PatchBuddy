@@ -1,15 +1,16 @@
 import React from 'react';
-import { Appbar, Button, Card, FAB, Text, TextInput } from 'react-native-paper';
+import { Appbar, Button, Card, Text, TextInput } from 'react-native-paper';
 import Tts from 'react-native-tts';
 import RNFetchBlob from 'rn-fetch-blob';
 import { Platform, ScrollView, View } from 'react-native';
 import { ref, set } from 'firebase/database';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import { db } from '../../../../firebase-config';
-import { StackActions, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { REACT_APP_FIREBASE_TAG_REF } from "@env";
-import { assistantSpeak } from '../../../global/ttsTools';
+import { assistantSpeak, readOutLoud } from '../../../global/ttsTools';
 import { GLOBAL } from '../../../global/global';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"
 
 function AddDescription({ route, navigation }: { route : any, navigation: any }) : JSX.Element {
   const { id } = route.params;
@@ -41,6 +42,7 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
    * recording itself.
    */ 
   const onStartRecord = async () => {
+    Tts.stop();
     Tts.speak("Recording.");
     Tts.addListener("tts-finish", async function diesdas() {
       // waits until the tts ends speaking. If it ends, start recording with microphone
@@ -101,15 +103,15 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
         <View style={{padding:16}}>
           <Card style={{marginBottom:32}}>
             <Card.Content>
-              <Text variant="titleLarge" style={{paddingBottom: 8}}>Provide a description</Text>
-              <Text variant="bodyLarge">{TTS_INSTRUCTION}</Text>
+              <Text variant="headlineLarge" style={{paddingBottom: 8}}>Provide a description</Text>
+              <Text variant="headlineMedium">{TTS_INSTRUCTION}</Text>
             </Card.Content>
             <Card.Actions style={{marginTop: 8}}>
-              <Button mode='text' icon="text-to-speech" onPress={() => Tts.speak(TTS_INSTRUCTION)}>Read out loud</Button>
+              <Button mode='text' icon="text-to-speech" onPress={() => readOutLoud(TTS_INSTRUCTION)}>Read out loud</Button>
             </Card.Actions>
           </Card>
 
-          <Text variant='titleLarge' style={{marginBottom:8}}>Description via Text</Text> 
+          <Text variant='headlineMedium' style={{marginBottom:8}}>Description via Text</Text> 
           <TextInput
               label="Your textual description"
               mode="outlined"
@@ -117,7 +119,7 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
               onChangeText={text => setText(text)}
           />
 
-          <Text variant='titleLarge' style={{marginTop:32, marginBottom:8}}>Description via Voice</Text> 
+          <Text variant='headlineMedium' style={{marginTop:32, marginBottom:8}}>Description via Voice</Text> 
           <View style={{flexDirection: "row", flex: 1}}>
             <Button style={{flex: 1, marginRight: 8, }} icon="record" mode="contained" onPressIn={() => onStartRecord()} onPressOut={() => onStopRecord()}>Record</Button>
             <Button style={{flex: 1, marginRight: 8, }} icon="play" mode="contained" onPress={() => onStartPlay()}>Play</Button>

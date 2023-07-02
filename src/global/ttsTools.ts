@@ -12,7 +12,22 @@ export interface ttsTools {
  * @param message (string) message to be spoken
  */
 export const assistantSpeak = (isAssistanceActive: boolean, message : string) => {
-    isAssistanceActive ? Tts.speak(message) : null;
+    if(isAssistanceActive) {
+        Tts.stop();
+        Tts.speak(message);
+    } else {
+        null;
+    }
+}
+
+/**
+ * Speaks a message out loud. For manual use
+ * 
+ * @param message (string) message to be spoken
+ */
+export const readOutLoud = (message : string) => {
+    Tts.stop();
+    Tts.speak(message);
 }
 
 /**

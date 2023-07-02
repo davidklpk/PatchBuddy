@@ -1,20 +1,22 @@
 import { firebase } from '@react-native-firebase/database';
 import React, { useEffect, useState } from 'react';
 import {SafeAreaView, ScrollView, View } from 'react-native';
-import { Text, Button, Card, Appbar } from 'react-native-paper';
+import { Text, Button, Card, Appbar, TouchableRipple, useTheme } from 'react-native-paper';
 import NfcManager, { NfcEvents, NfcTech } from 'react-native-nfc-manager';
 import Tts from 'react-native-tts';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import { useFocusEffect } from '@react-navigation/native';
 import { REACT_APP_FIREBASE_DB_URL, REACT_APP_FIREBASE_TAG_REF } from "@env";
-import {GLOBAL} from "./../../global/global"
-import { assistantSpeak, navigateToScreen } from '../../global/ttsTools';
+import { GLOBAL } from "./../../global/global"
+import { assistantSpeak, navigateToScreen, readOutLoud } from '../../global/ttsTools';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"
 
 function Start({navigation}: {navigation: any}): JSX.Element {
   const [hasNfc, setHasNFC] = useState(false);
   const audioRecorderPlayer = new AudioRecorderPlayer(); 
+  const { colors } = useTheme();
 
-  const TTS_INSTRUCTION = "Simply hold your device near your patch. PatchBuddy will handle the rest, promise.";
+  const TTS_INSTRUCTION = "Simply hold your device near your patch.";
   const TTS_NONFC = "Your NFC seems to be turned of. Please turn it on, in order to use PatchBuddy.";
   const TTS_TAGUNKNOWN = "The tag is unknown. You can register it right now.";
 
@@ -101,14 +103,9 @@ function Start({navigation}: {navigation: any}): JSX.Element {
         await audioRecorderPlayer.startPlayer(path);
       })
     } else {
-      Tts.speak("Patch detected. TTS-Description: " + description);
+      readOutLoud("Patch detected. TTS-Description: " + description)
     }
   }
-
-  // const navigateToScreen= (screenName : string) => {
-  //   Tts.stop();
-  //   navigation.replace(screenName);
-  // }
 
   // If NFC is activated
   if(hasNfc) {
@@ -118,22 +115,58 @@ function Start({navigation}: {navigation: any}): JSX.Element {
           <Appbar.Content title="PatchBuddy" />
         </Appbar.Header>
         <ScrollView 
-          contentContainerStyle={{flexGrow: 1, justifyContent: 'center', marginBottom: 48}}
+          contentContainerStyle={{flexGrow: 1, justifyContent: 'center', marginBottom: 0}}
           contentInsetAdjustmentBehavior="automatic">
-            <View style={{padding:16}}>
+
+            <View style={{padding:16, height:"80%", justifyContent: "center", alignContent: "center"}}>
               <Card>
                 <Card.Content>
-                  <Text variant="titleLarge" style={{paddingBottom: 8}}>Scan your patch</Text>
-                  <Text variant="bodyLarge">{TTS_INSTRUCTION}</Text>
+                  <Icon style={{color: colors.onSurface, paddingBottom: 16, alignSelf:"center"}} name="nfc-search-variant" size={64} />
+                  <Text variant="headlineLarge" style={{paddingBottom: 8}}>Scan your patch</Text>
+                  <Text variant="titleLarge">{TTS_INSTRUCTION}</Text>
                 </Card.Content>
-                <Card.Actions style={{marginTop: 8}}>
-                  <Button mode='text' icon="text-to-speech" onPress={() => Tts.speak(TTS_INSTRUCTION)}>Read out loud</Button>
-                </Card.Actions>
               </Card>
-              <Button mode='contained' style={{marginTop: 32}} icon="content-save-edit" onPress={() => navigateToScreen("Rewrite", navigation)}>Rewrite existing tag</Button>
+              <View style={{borderRadius: 16, marginTop:16, overflow: 'hidden', justifyContent: "flex-end"}}>
+                <TouchableRipple
+                  onPress={() => navigateToScreen("Rewrite", navigation)}
+                  style={{
+                    padding: 16,
+                    width: '100%',
+                    backgroundColor: colors.primary,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  rippleColor="rgba(255, 255, 255, .18)">
+                  <>
+                    <Icon style={{color: colors.onPrimary, paddingBottom: 16}} name="content-save-edit" size={32} />
+                    <Text variant='headlineSmall' style={{color: colors.onPrimary, textAlign: "center"}}>Rewrite existing tag</Text>
+                  </>
+                </TouchableRipple>
+              </View>
+            
             </View>
+
+            
+          <View style={{borderRadius: 16, overflow: 'hidden', height: "20%", width: '100%', flex: 1, justifyContent: "flex-end"}}>
+            <TouchableRipple
+              onPress={() => readOutLoud(TTS_INSTRUCTION)}
+              style={{
+                padding: 16,
+                height: "100%",
+                width: '100%',
+                backgroundColor: colors.primaryContainer,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              rippleColor="rgba(255, 255, 255, .18)">
+              <>
+              <Icon style={{color: colors.onPrimaryContainer, paddingBottom: 16}} name="text-to-speech" size={32} />
+              <Text variant='headlineSmall' style={{color: colors.onPrimaryContainer, textAlign: "center"}}>Read Out Loud</Text>
+              </>
+            </TouchableRipple>
+          </View>
         </ScrollView>
-        </>
+      </>
     )
 
     // If NFC is deactivated

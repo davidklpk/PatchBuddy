@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { Appbar, Card, Text, Button } from 'react-native-paper';
+import { Appbar, Card, Text, Button, TouchableRipple, useTheme } from 'react-native-paper';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import Tts from 'react-native-tts';
 import { useFocusEffect } from '@react-navigation/native';
 import { ScrollView, View } from 'react-native';
-import { assistantSpeak } from '../../../global/ttsTools';
+import { assistantSpeak, readOutLoud } from '../../../global/ttsTools';
 import { GLOBAL } from '../../../global/global';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"
 
 function ScanTag({ navigation }: { navigation: any }) : JSX.Element {
-
   const [getId, setNFCId] = useState<string | undefined>("");
+  const { colors } = useTheme();
 
   const _goBack = () => navigation.navigate('Start');
 
@@ -55,19 +56,41 @@ function ScanTag({ navigation }: { navigation: any }) : JSX.Element {
           <Appbar.Content title="Rewrite a patch" />
         </Appbar.Header>
         <ScrollView 
-          contentContainerStyle={{flexGrow: 1, justifyContent: 'center', marginBottom: 48}}
+          contentContainerStyle={{flexGrow: 1, justifyContent: 'center', marginBottom: 0}}
           contentInsetAdjustmentBehavior="automatic">
-            <View style={{padding:16}}>
+
+            <View style={{padding:16, height:"80%", justifyContent: "center", alignContent: "center"}}>
               <Card>
                 <Card.Content>
-                  <Text variant="titleLarge" style={{paddingBottom: 8}}>Scan your patch</Text>
-                  <Text variant="bodyLarge">{TTS_INSTRUCTION}</Text>
+                  <Icon style={{color: colors.onSurface, paddingBottom: 16, alignSelf:"center"}} name="nfc-search-variant" size={64} />
+                  <Text variant="headlineLarge" style={{paddingBottom: 16}}>Scan your patch</Text>
+                  <Text variant="titleLarge">{TTS_INSTRUCTION}</Text>
                 </Card.Content>
-                <Card.Actions style={{marginTop: 8}}>
-                  <Button mode='text' icon="text-to-speech" onPress={() => Tts.speak(TTS_INSTRUCTION)}>Read out loud</Button>
-                </Card.Actions>
+                {/* <Card.Actions style={{marginTop: 16}}>
+                  <Button mode='text' icon="text-to-speech" onPress={() => readOutLoud(TTS_INSTRUCTION)}>Read out loud</Button>
+                </Card.Actions> */}
               </Card>
             </View>
+
+
+          <View style={{borderRadius: 16, overflow: 'hidden', height: "20%", width: '100%', flex: 1, justifyContent: "flex-end"}}>
+            <TouchableRipple
+              onPress={() => readOutLoud(TTS_INSTRUCTION)}
+              style={{
+                padding: 16,
+                height: "100%",
+                width: '100%',
+                backgroundColor: colors.primaryContainer,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              rippleColor="rgba(255, 255, 255, .18)">
+              <>
+              <Icon style={{color: colors.onPrimaryContainer, paddingBottom: 16}} name="text-to-speech" size={32} />
+              <Text variant='headlineMedium' style={{color: colors.onPrimaryContainer, textAlign: "center"}}>Read Out Loud</Text>
+              </>
+            </TouchableRipple>
+          </View>
         </ScrollView>
       </> 
   )

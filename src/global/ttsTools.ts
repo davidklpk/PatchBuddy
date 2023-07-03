@@ -13,7 +13,7 @@ export interface ttsTools {
  */
 export const assistantSpeak = (isAssistanceActive: boolean, message : string) => {
     if(isAssistanceActive) {
-        Tts.stop();
+        //Tts.stop();
         Tts.speak(message);
     } else {
         null;

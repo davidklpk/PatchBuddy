@@ -1,24 +1,25 @@
 import React from 'react';
-import { Appbar, Button, Card, Text, TextInput } from 'react-native-paper';
+import { Appbar, Button, Card, Divider, Portal, Text, TextInput, TouchableRipple, useTheme } from 'react-native-paper';
 import Tts from 'react-native-tts';
 import RNFetchBlob from 'rn-fetch-blob';
-import { Platform, ScrollView, View } from 'react-native';
+import { Modal, Platform, ScrollView, View } from 'react-native';
 import { ref, set } from 'firebase/database';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import { db } from '../../../../firebase-config';
-import { useFocusEffect } from '@react-navigation/native';
+import { StackActions, useFocusEffect } from '@react-navigation/native';
 import { REACT_APP_FIREBASE_TAG_REF } from "@env";
-import { assistantSpeak, readOutLoud } from '../../../global/ttsTools';
+import { assistantSpeak, navigateToScreen, readOutLoud } from '../../../global/ttsTools';
 import { GLOBAL } from '../../../global/global';
+import { STRINGS } from '../../../global/strings';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons"
 
 function AddDescription({ route, navigation }: { route : any, navigation: any }) : JSX.Element {
   const { id } = route.params;
   const [text, setText] = React.useState("");
   const [hasAudio, setHasAudio] = React.useState(false);
-  const audioRecorderPlayer = new AudioRecorderPlayer();
+  const audioRecorderPlayer = new AudioRecorderPlayer();  
+  const { colors } = useTheme();
   
-  const TTS_INSTRUCTION = "Provide a description for your patch. You can also record an audio description by pressing the microphone button. Release the button to stop recording.";
   const _goBack = () => navigation.navigate('Rewrite');
 
   const dirs = RNFetchBlob.fs.dirs;   // Gets the directory-paths of the system
@@ -29,7 +30,7 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
 
   useFocusEffect(
     React.useCallback(() => {
-      assistantSpeak(GLOBAL.isTtsActivated, TTS_INSTRUCTION);
+      assistantSpeak(GLOBAL.isTtsActivated, STRINGS.ADD_PATCH_DESC_TTS);
       return () => {
         // cleanup functions: if unfocused remove all eventListeners etc.
         Tts.removeAllListeners("tts-finish");
@@ -56,7 +57,8 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
     await audioRecorderPlayer.stopRecorder();
     audioRecorderPlayer.removeRecordBackListener();
     setHasAudio(true);
-    console.info('Recording has been stopped.');
+    //Tts.speak(STRINGS.RECORDING_STOP);
+    //console.info(STRINGS.RECORDING_STOP);
   };
 
   // Starts the recording
@@ -80,9 +82,13 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
   
       Tts.removeAllListeners("tts-finish");
       Tts.stop();
-      Tts.speak("Your patch is now registered.")
-      //navigation.dispatch(StackActions.popToTop());
-      navigation.reset({index:0, routes:[{name: 'Start'}]})
+      Tts.speak(STRINGS.TAG_SUCCESSFULLY_REGISTERED);
+
+      Tts.addListener("tts-finish", async () => {
+        navigation.replace("Start");
+        //navigateToScreen("Start", navigation);
+      });
+      //navigation.reset({index:0, routes:[{name: 'Start'}]})
   
     } catch(e) {
       // TODO Exception Handling
@@ -100,18 +106,27 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
       <ScrollView 
           contentContainerStyle={{flexGrow: 1, justifyContent: 'center', marginBottom: 48}}
           contentInsetAdjustmentBehavior="automatic">
+
         <View style={{padding:16}}>
-          <Card style={{marginBottom:32}}>
+          <Card>
             <Card.Content>
-              <Text variant="headlineLarge" style={{paddingBottom: 8}}>Provide a description</Text>
-              <Text variant="headlineMedium">{TTS_INSTRUCTION}</Text>
+              <Icon style={{color: colors.onSurface, paddingBottom: 16, alignSelf:"center"}} name="sticker-plus-outline" size={64} />
+              <Text variant="headlineLarge" style={{paddingBottom: 4}}>{STRINGS.ADD_PATCH_TITLE_TEXT}</Text>
+              <Text variant="headlineMedium">{STRINGS.ADD_PATCH_SUBTITLE_TEXT}</Text>
             </Card.Content>
-            <Card.Actions style={{marginTop: 8}}>
-              <Button mode='text' icon="text-to-speech" onPress={() => readOutLoud(TTS_INSTRUCTION)}>Read out loud</Button>
-            </Card.Actions>
           </Card>
 
-          <Text variant='headlineMedium' style={{marginBottom:8}}>Description via Text</Text> 
+          <Divider style={{marginTop:24, marginBottom:16}}/>
+          
+          <Text variant='headlineSmall' style={{marginBottom:16}}>{STRINGS.ADD_PATCH_TITLE_VIA_AUDIO}</Text> 
+          <View style={{flexDirection: "row", flex: 1, height: "20%"}}>
+            <Button style={{flex: 1, marginRight: 8, height: "100%" }} icon="record" mode="contained" onPressIn={() => onStartRecord()} onPressOut={() => onStopRecord()}>Record</Button>
+            <Button style={{flex: 1, marginRight: 8, }} icon="play" mode="contained" disabled={!hasAudio} onPress={() => onStartPlay()}>Play</Button>
+          </View>
+
+          <Divider style={{marginTop:24, marginBottom:24}}/>
+
+          <Text variant='headlineSmall' style={{marginBottom:8}}>{STRINGS.ADD_PATCH_TITLE_VIA_TEXT}</Text> 
           <TextInput
               label="Your textual description"
               mode="outlined"
@@ -119,15 +134,46 @@ function AddDescription({ route, navigation }: { route : any, navigation: any })
               onChangeText={text => setText(text)}
           />
 
-          <Text variant='headlineMedium' style={{marginTop:32, marginBottom:8}}>Description via Voice</Text> 
-          <View style={{flexDirection: "row", flex: 1}}>
-            <Button style={{flex: 1, marginRight: 8, }} icon="record" mode="contained" onPressIn={() => onStartRecord()} onPressOut={() => onStopRecord()}>Record</Button>
-            <Button style={{flex: 1, marginRight: 8, }} icon="play" mode="contained" onPress={() => onStartPlay()}>Play</Button>
-            <Button style={{flex: 1 }} icon="content-save" mode="contained" onPress={() => addPatchToDB()}>Save</Button>
-          </View>
+          <Divider style={{marginTop:24, marginBottom:24}}/>
 
+          <View style={{borderRadius: 16, overflow: 'hidden', justifyContent: "flex-end"}}>
+                <TouchableRipple
+                  onPress={() => addPatchToDB()}
+                  style={{
+                    padding: 16,
+                    width: '100%',
+                    backgroundColor: colors.primary,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  rippleColor="rgba(255, 255, 255, .18)">
+                  <View style={{flex: 1, flexDirection: "row", justifyContent: "flex-end"}}>
+                    <Icon style={{color: colors.onPrimary, paddingRight: 8}} name="content-save" size={32} />
+                    <Text variant='headlineSmall' style={{color: colors.onPrimary, textAlign: "center"}}>{STRINGS.BUTTON_SAVE_TAG}</Text>
+                  </View>
+                </TouchableRipple>
+              </View>
         </View>
       </ScrollView>
+      
+      <View style={{borderRadius: 16, overflow: 'hidden', height: "20%", width: '100%', justifyContent: "flex-end"}}>
+        <TouchableRipple
+          onPress={() => readOutLoud(STRINGS.ADD_PATCH_DESC_TTS)}
+          style={{
+            padding: 16,
+            height: "100%",
+            width: '100%',
+            backgroundColor: colors.primaryContainer,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          rippleColor="rgba(255, 255, 255, .18)">
+          <>
+            <Icon style={{color: colors.onPrimaryContainer, paddingBottom: 16}} name="text-to-speech" size={32} />
+            <Text variant='headlineSmall' style={{color: colors.onPrimaryContainer, textAlign: "center"}}>{STRINGS.BUTTON_READ_OUT}</Text>
+          </>
+        </TouchableRipple>
+      </View>
     </>
   )
 }

@@ -10,15 +10,13 @@ import { REACT_APP_FIREBASE_DB_URL, REACT_APP_FIREBASE_TAG_REF } from "@env";
 import { GLOBAL } from "./../../global/global"
 import { assistantSpeak, navigateToScreen, readOutLoud } from '../../global/ttsTools';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons"
+import { STRINGS } from '../../global/strings';
 
 function Start({navigation}: {navigation: any}): JSX.Element {
+
   const [hasNfc, setHasNFC] = useState(false);
   const audioRecorderPlayer = new AudioRecorderPlayer(); 
   const { colors } = useTheme();
-
-  const TTS_INSTRUCTION = "Simply hold your device near your patch.";
-  const TTS_NONFC = "Your NFC seems to be turned of. Please turn it on, in order to use PatchBuddy.";
-  const TTS_TAGUNKNOWN = "The tag is unknown. You can register it right now.";
 
   useFocusEffect(
     React.useCallback(() => {  
@@ -41,17 +39,17 @@ function Start({navigation}: {navigation: any}): JSX.Element {
   useEffect(() => {
     // checks if the target device supports NFC
     const checkIsSupported = async () => {
-      const deviceIsSupported : boolean = await NfcManager.isSupported();
-      const nfcIsTurnedOn : boolean = await NfcManager.isEnabled();
+    const deviceIsSupported : boolean = await NfcManager.isSupported();
+    const nfcIsTurnedOn : boolean = await NfcManager.isEnabled();
       
-      if (deviceIsSupported && nfcIsTurnedOn) {
-        setHasNFC(true);
-        await NfcManager.start()
-        readTag();
-        assistantSpeak(GLOBAL.isTtsActivated, TTS_INSTRUCTION)
-      } else {
-        assistantSpeak(GLOBAL.isTtsActivated, TTS_NONFC)
-      }
+    if (deviceIsSupported && nfcIsTurnedOn) {
+      setHasNFC(true);
+      await NfcManager.start()
+      readTag();
+      assistantSpeak(GLOBAL.isTtsActivated, STRINGS.START_DESC_TTS)
+    } else {
+      assistantSpeak(GLOBAL.isTtsActivated, STRINGS.NO_NFC_TTS)
+    }
     }
     checkIsSupported()
   }, [])
@@ -73,7 +71,7 @@ function Start({navigation}: {navigation: any}): JSX.Element {
         if(snapshot.exists()) {
           speakResult(snapshot.child("hasAudio").val(), snapshot.child("description").val(), snapshot.child("path").val());
         } else {
-          Tts.speak(TTS_TAGUNKNOWN);
+          Tts.speak(STRINGS.UNKNOWN_TAG);
           navigation.navigate('Rewrite');
         }
       });
@@ -122,8 +120,8 @@ function Start({navigation}: {navigation: any}): JSX.Element {
               <Card>
                 <Card.Content>
                   <Icon style={{color: colors.onSurface, paddingBottom: 16, alignSelf:"center"}} name="nfc-search-variant" size={64} />
-                  <Text variant="headlineLarge" style={{paddingBottom: 8}}>Scan your patch</Text>
-                  <Text variant="titleLarge">{TTS_INSTRUCTION}</Text>
+                  <Text variant="headlineLarge" style={{paddingBottom: 4}}>{STRINGS.START_TITLE_TEXT}</Text>
+                  <Text variant="titleLarge">{STRINGS.START_SUBTITLE_TEXT}</Text>
                 </Card.Content>
               </Card>
               <View style={{borderRadius: 16, marginTop:16, overflow: 'hidden', justifyContent: "flex-end"}}>
@@ -137,19 +135,17 @@ function Start({navigation}: {navigation: any}): JSX.Element {
                     justifyContent: 'center',
                   }}
                   rippleColor="rgba(255, 255, 255, .18)">
-                  <>
-                    <Icon style={{color: colors.onPrimary, paddingBottom: 16}} name="content-save-edit" size={32} />
+                  <View style={{flex: 1, flexDirection: "row", justifyContent: "flex-end"}}>
+                    <Icon style={{color: colors.onPrimary, paddingRight: 8}} name="content-save-edit" size={32} />
                     <Text variant='headlineSmall' style={{color: colors.onPrimary, textAlign: "center"}}>Rewrite existing tag</Text>
-                  </>
+                  </View>
                 </TouchableRipple>
               </View>
-            
             </View>
-
-            
-          <View style={{borderRadius: 16, overflow: 'hidden', height: "20%", width: '100%', flex: 1, justifyContent: "flex-end"}}>
+        </ScrollView>
+        <View style={{borderRadius: 16, overflow: 'hidden', height: "20%", width: '100%', flex: 1, justifyContent: "flex-end"}}>
             <TouchableRipple
-              onPress={() => readOutLoud(TTS_INSTRUCTION)}
+              onPress={() => readOutLoud(STRINGS.START_DESC_TTS)}
               style={{
                 padding: 16,
                 height: "100%",
@@ -160,12 +156,11 @@ function Start({navigation}: {navigation: any}): JSX.Element {
               }}
               rippleColor="rgba(255, 255, 255, .18)">
               <>
-              <Icon style={{color: colors.onPrimaryContainer, paddingBottom: 16}} name="text-to-speech" size={32} />
-              <Text variant='headlineSmall' style={{color: colors.onPrimaryContainer, textAlign: "center"}}>Read Out Loud</Text>
+                <Icon style={{color: colors.onPrimaryContainer, paddingBottom: 16}} name="text-to-speech" size={32} />
+                <Text variant='headlineSmall' style={{color: colors.onPrimaryContainer, textAlign: "center"}}>{STRINGS.BUTTON_READ_OUT}</Text>
               </>
             </TouchableRipple>
-          </View>
-        </ScrollView>
+        </View>
       </>
     )
 

@@ -6,19 +6,16 @@ import { ScrollView, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import {GLOBAL} from "./../../global/global"
 import { navigateToScreen } from '../../global/ttsTools';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"
+import { STRINGS } from '../../global/strings';
 
 function Setup({ navigation }: { navigation: any }) : JSX.Element {
   const { colors } = useTheme();
-
   const [tts, setTTS] = useState(true);
-
-  const TTS_DESCRIPTION = "Hi, I am your PatchBuddy. Before we get started, I need to know if you want me to read out loud constantly all relevant menu items to you. If yes, press the upper half of your screen. Otherwise, if you want me to stay quiet, press the lower half of your screen. Keep in mind: You can always activate text-to-speech, even if you turn it off.";
-  const TTS_ACCESSIBILITY_TRUE = "TTS Activated. PatchBuddy will read all relevant actions out loud to you."
-  const TTS_ACCESSIBILITY_FALSE = "TTS Deactivated. PatchBuddy will keep quiet. You can always turn it on again."
 
   useFocusEffect(
     React.useCallback(() => {
-      speakDialog(TTS_DESCRIPTION);
+      speakDialog(STRINGS.SETUP_DESC_TTS);
 
       return () => {
         // cleanup functions
@@ -37,11 +34,11 @@ function Setup({ navigation }: { navigation: any }) : JSX.Element {
 
     if(ttsActive) {
       GLOBAL.isTtsActivated = true;
-      speakDialog(TTS_ACCESSIBILITY_TRUE);
+      speakDialog(STRINGS.SETUP_TTS_TRUE);
       
     } else {
       GLOBAL.isTtsActivated = false;
-      speakDialog(TTS_ACCESSIBILITY_FALSE);
+      speakDialog(STRINGS.SETUP_TTS_FALSE);
     }
   }
 
@@ -57,8 +54,8 @@ function Setup({ navigation }: { navigation: any }) : JSX.Element {
           marginBottom: 0,
         }}
         contentInsetAdjustmentBehavior="automatic">
-        <View style={{padding: 16, gap: 16}}>
-          <View style={{borderRadius: 16, overflow: 'hidden', height: '48%', width: '100%'}}>
+        <View style={{ gap: 16}}>
+          <View style={{borderRadius: 16, overflow: 'hidden', height: '49%', width: '100%'}}>
             <TouchableRipple
               onPress={() => toggleTTS(true)}
               style={{
@@ -71,11 +68,14 @@ function Setup({ navigation }: { navigation: any }) : JSX.Element {
                 justifyContent: 'center',
               }}
               rippleColor="rgba(255, 255, 255, .18)">
-              <Text style={{fontSize: 28, color: colors.onPrimaryContainer, textAlign: "center"}}>Activate Text-To-Speech</Text>
+                <>
+                  <Icon style={{color: colors.onPrimaryContainer, paddingBottom: 16}} name="text-to-speech" size={72} />
+                  <Text style={{fontSize: 28, color: colors.onPrimaryContainer, textAlign: "center"}}>Activate Text-To-Speech</Text>
+                </>
             </TouchableRipple>
           </View>
 
-          <View style={{borderRadius: 16, overflow: 'hidden', height: '48%', width: '100%'}}>
+          <View style={{borderRadius: 16, overflow: 'hidden', height: '49%', width: '100%'}}>
             <TouchableRipple
               onPress={() => toggleTTS(false)}
               style={{
@@ -88,7 +88,10 @@ function Setup({ navigation }: { navigation: any }) : JSX.Element {
                 justifyContent: 'center',
               }}
               rippleColor="rgba(255, 255, 255, .18)">
-              <Text style={{fontSize: 28, color: colors.onPrimaryContainer, textAlign: "center"}}>Deactivate Text-To-Speech</Text>
+              <>
+                <Icon style={{color: colors.onPrimaryContainer, paddingBottom: 16}} name="text-to-speech-off" size={72} />
+                <Text style={{fontSize: 28, color: colors.onPrimaryContainer, textAlign: "center"}}>Deactivate Text-To-Speech</Text>
+              </>
             </TouchableRipple>
           </View>
         </View>

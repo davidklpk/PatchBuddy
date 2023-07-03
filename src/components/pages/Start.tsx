@@ -60,7 +60,8 @@ function Start({navigation}: {navigation: any}): JSX.Element {
   }
 
   const searchTag = (id : string) => {
-    console.log(REACT_APP_FIREBASE_DB_URL)
+    console.log(REACT_APP_FIREBASE_DB_URL);
+    Tts.stop();
     try {
       firebase
       .app()
@@ -157,7 +158,7 @@ function Start({navigation}: {navigation: any}): JSX.Element {
               rippleColor="rgba(255, 255, 255, .18)">
               <>
                 <Icon style={{color: colors.onPrimaryContainer, paddingBottom: 16}} name="text-to-speech" size={32} />
-                <Text variant='headlineSmall' style={{color: colors.onPrimaryContainer, textAlign: "center"}}>{STRINGS.BUTTON_READ_OUT}</Text>
+                <Text variant='headlineMedium' style={{color: colors.onPrimaryContainer, textAlign: "center"}}>{STRINGS.BUTTON_READ_OUT}</Text>
               </>
             </TouchableRipple>
         </View>
